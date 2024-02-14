@@ -3,7 +3,7 @@ import random
 import ast
 
 # Open and setup doc
-wb = pxl.load_workbook('doc.xlsx', data_only=True)
+wb = pxl.load_workbook('../doc.xlsx', data_only=True)
 sheets = wb.sheetnames
 
 def read_file(filename, index):
@@ -78,29 +78,37 @@ class Player:
 def main():
     # Values defined by a tk interface, written in a config.txt file
     config = ast.literal_eval(read_file("config.txt", 0)) # Convert the config file's info to array
+    player_count = len(config)
     player_1_role = config[0][0]
     player_1_level = config[0][1]
     player_1_weapon_ID = config[0][2]
     player_1_item_ID = config[0][3]
 
-    # Setup from the doc:
-    player_1 = Player( # To be set in a loop for more players
-        role = player_1_role,
-        level = player_1_level,
-        weapon_ID = player_1_weapon_ID,
-        item_ID = player_1_item_ID
-    )
+    players = [] # Contains player objects
+
+    for i in range(player_count):
+        # Add a player
+        players.append(
+            Player(
+            role = config[i][0],
+            level = config[i][1],
+            weapon_ID = config[i][2],
+            item_ID = config[i][3]
+            )
+        )
 
     # Then temporary, just debugging for now
-    print(player_1.display())
+    print(players[0].display())
+    print(players[1].display())
 
-    print("Damage done: " + str(player_1.calculate_damage_rolls()))
+    for i in range(player_count):
+        print("Player " + str(i+1) + " - Damage done: " + str(players[i].calculate_damage_rolls()))
 
-    damage_taken = player_1.damaged(100)
-    if damage_taken[0] == True:
-        print("Damage taken for 100: " + str(damage_taken[1]))
-    else:
-        print("Dodged!")
+        damage_taken = players[1].damaged(100)
+        if damage_taken[0] == True:
+            print("Player " + str(i+1) + " - Damage taken for 100: " + str(damage_taken[1]))
+        else:
+            print("Player " + str(i+1) + " - Dodged!")
 
 wb.close() # Close the doc to avoid corruption
 
