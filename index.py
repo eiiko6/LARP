@@ -58,7 +58,7 @@ class Player:
         )
         self.regen = self.item.regen
 
-    def calculate_damage(self): # Player tries to deal damage
+    def calculate_damage(self): # Tries to deal damage
         if random.randint(1, 100) <= int(self.weapon.miss):
             return 0
     
@@ -74,7 +74,7 @@ class Player:
         else:
             return round(damage)
 
-    def damaged(self, dmg): # Player tries to take damage
+    def damaged(self, dmg): # Tries to take damage
         if random.randint(1, 100) >= int(self.item.dodge):
             return True, dmg - int(self.item.defense)/100*dmg
         return False, 0
@@ -82,11 +82,36 @@ class Player:
     def display(self):
         return self.role, self.level, self.weapon.display(), self.item.display()
 
+class Enemy:
+    def __init__(self, name, hp, hit, defense, dodge, regen, poison):
+        self.name = name
+        self.hp = hp
+        self.hit = hit
+        self.defense = defense
+        self.dodge = dodge
+        self.regen = regen
+        self.poison = poison
+    
+    def calculate_damage(self): # Tries to deal damage
+        if random.randint(1, 100) <= int(self.dodge):
+            return 0
+    
+        damage = random.gauss(self.hit, self.hit/6) # Gauss for damage calculation
+
+    def damaged(self, dmg): # Tries to take damage
+        if random.randint(1, 100) >= int(self.dodge):
+            return True, dmg - int(self.defense)/100*dmg
+        return False, 0
+        
+    def display(self):
+        return self.name, self.hp, self.hit, self.defense, self.dodge, self.regen, self.poison
+
 def main():
     # Values defined by a tk interface, written in a config.txt file
     config = ast.literal_eval(read_file("config.txt", 0)) # Convert the config file's info to array
-    player_count = len(config)
+    level = ast.literal_eval(read_file("level.txt", 0)) # Read the level info
 
+    player_count = len(config)
     players = [] # Contains player objects
 
     for i in range(player_count):
@@ -101,10 +126,22 @@ def main():
             )
         )
 
+    Enemy = Enemy(
+        name = read_excel("Enemies", str("B" + str(int(level[0]) + 1))),
+        hp = read_excel("Enemies", str("C" + str(int(level[0]) + 1))),
+        hit = read_excel("Enemies", str("D" + str(int(level[0]) + 1))),
+        defense = read_excel("Enemies", str("E" + str(int(level[0]) + 1))),
+        dodge = read_excel("Enemies", str("F" + str(int(level[0]) + 1))),
+        regen = read_excel("Enemies", str("G" + str(int(level[0]) + 1))),
+        poison = read_excel("Enemies", str("H" + str(int(level[0]) + 1)))
+    )
+
     team_regen = 0
     for i in range(player_count): # Add healer's regen stat to all the team
         if players[i].role == "M" or players[i].role == "D":
             team_regen += int(players[i].regen)
+    
+    # Debug tests here: -----------------
 
     print("Team regen : " + str(team_regen) + "\n")
 
@@ -119,6 +156,21 @@ def main():
             print("Player " + str(i+1) + " - Damage taken for 100: " + str(damage_taken[1]) + "\n")
         else:
             print("Player " + str(i+1) + " - Dodged!" + "\n")
+    
+    # Actual game starts here: ------------
+    
+    for turns in range(0, 150):
+        print("\n> Starting turn " + str(turns))
+
+        # Enemy attacks
+        raw_dmg = Enemy.calculate_damage()
+        target = random.randint(0, len(player_count) - 1)
+        damage_taken = players[target].damaged(raw_dmg)
+        print(Enemy.name + " attacks! Throws " + str(raw_dmg) + " dmg at player " + str(target))
+        print("Player " + str(target) + " takes " + str(damage_taken) + "!")
+
+        # Players attack
+        
 
 wb.close() # Close the doc to avoid corruption
 
