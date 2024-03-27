@@ -3,7 +3,7 @@ import random
 import ast
 
 # Open and setup doc
-wb = pxl.load_workbook('../doc.xlsx', data_only=True)
+wb = pxl.load_workbook('../doc.xls', data_only=True)
 sheets = wb.sheetnames
 
 def read_file(filename, index):
@@ -83,10 +83,11 @@ class Player:
         return self.role, self.level, self.weapon.display(), self.item.display()
 
 class Enemy:
-    def __init__(self, name, hp, hit, defense, dodge, regen, poison):
+    def __init__(self, name, hp, hit, miss, defense, dodge, regen, poison):
         self.name = name
         self.hp = hp
         self.hit = hit
+        self.miss = miss
         self.defense = defense
         self.dodge = dodge
         self.regen = regen
@@ -104,7 +105,7 @@ class Enemy:
         return False, 0
         
     def display(self):
-        return self.name, self.hp, self.hit, self.defense, self.dodge, self.regen, self.poison
+        return self.name, self.hp, self.hit, self.miss, self.defense, self.dodge, self.regen, self.poison
 
 def main():
     # Values defined by a tk interface, written in a config.txt file
@@ -130,10 +131,11 @@ def main():
         name = read_excel("Enemies", str("B" + str(int(level[0]) + 1))),
         hp = read_excel("Enemies", str("C" + str(int(level[0]) + 1))),
         hit = read_excel("Enemies", str("D" + str(int(level[0]) + 1))),
-        defense = read_excel("Enemies", str("E" + str(int(level[0]) + 1))),
-        dodge = read_excel("Enemies", str("F" + str(int(level[0]) + 1))),
-        regen = read_excel("Enemies", str("G" + str(int(level[0]) + 1))),
-        poison = read_excel("Enemies", str("H" + str(int(level[0]) + 1)))
+        miss = read_excel("Enemies", str("E" + str(int(level[0]) + 1))),
+        defense = read_excel("Enemies", str("F" + str(int(level[0]) + 1))),
+        dodge = read_excel("Enemies", str("G" + str(int(level[0]) + 1))),
+        regen = read_excel("Enemies", str("H" + str(int(level[0]) + 1))),
+        poison = read_excel("Enemies", str("I" + str(int(level[0]) + 1)))
     )
 
     team_regen = 0
@@ -156,7 +158,7 @@ def main():
             print("Player " + str(i+1) + " - Damage taken for 100: " + str(damage_taken[1]) + "\n")
         else:
             print("Player " + str(i+1) + " - Dodged!" + "\n")
-    
+
     # Actual game starts here: ------------
     
     for turns in range(0, 150):
@@ -170,7 +172,6 @@ def main():
         print("Player " + str(target) + " takes " + str(damage_taken) + "!")
 
         # Players attack
-        
 
 wb.close() # Close the doc to avoid corruption
 
